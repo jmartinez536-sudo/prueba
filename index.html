@@ -1,0 +1,2840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <!-- Pega aquí la URL completa del Webhook (n8n → Webhook node → Production URL). Opcional: ?webhook=URL_codificada -->
+  <meta name="n8n-webhook" content="https://flw.panteragpt.com/webhook/u-pres" />
+  <title>Wiki — Aquí entre iguales | Eje 2 · Sistemas operativos II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #eef1f8;
+      --bg-mesh: radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.12), transparent 50%),
+        radial-gradient(900px 500px at 100% 0%, rgba(14, 165, 233, 0.1), transparent 45%),
+        radial-gradient(800px 400px at 50% 100%, rgba(99, 102, 241, 0.06), transparent 50%);
+      --card: rgba(255, 255, 255, 0.92);
+      --card-solid: #fff;
+      --text: #141722;
+      --muted: #5a6172;
+      --accent: #4f46e5;
+      --accent-2: #0ea5e9;
+      --accent-soft: rgba(79, 70, 229, 0.1);
+      --accent-glow: rgba(79, 70, 229, 0.35);
+      --border: rgba(20, 23, 34, 0.08);
+      --wiki-sidebar: linear-gradient(165deg, #151a2e 0%, #1e2540 48%, #12182a 100%);
+      --wiki-sidebar-solid: #1a2035;
+      --wiki-sidebar-text: #e8eaf4;
+      --shadow: rgba(20, 23, 34, 0.07);
+      --shadow-lg: rgba(20, 23, 34, 0.12);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --font-sans: "DM Sans", system-ui, sans-serif;
+      --font-display: "Fraunces", Georgia, serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: clamp(8rem, 24vh, 13.5rem);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0c0f16;
+      --bg-mesh: radial-gradient(1000px 500px at 0% 0%, rgba(99, 102, 241, 0.15), transparent 50%),
+        radial-gradient(800px 400px at 100% 20%, rgba(14, 165, 233, 0.1), transparent 45%);
+      --card: rgba(28, 32, 44, 0.88);
+      --card-solid: #1c202c;
+      --text: #e8eaf4;
+      --muted: #9aa3b8;
+      --accent: #818cf8;
+      --accent-2: #38bdf8;
+      --accent-soft: rgba(129, 140, 248, 0.15);
+      --accent-glow: rgba(129, 140, 248, 0.4);
+      --border: rgba(232, 234, 244, 0.1);
+      --wiki-sidebar: linear-gradient(170deg, #06080f 0%, #0f1419 50%, #080b12 100%);
+      --wiki-sidebar-solid: #0a0d14;
+      --wiki-sidebar-text: #e8eaf4;
+      --shadow: rgba(0, 0, 0, 0.35);
+      --shadow-lg: rgba(0, 0, 0, 0.5);
+    }
+
+    [data-theme="dark"] .team-note {
+      background: #2a2618;
+      border-color: #5c4d28;
+      color: #ede8d4;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--text);
+      background-color: var(--bg);
+      background-image: var(--bg-mesh);
+      background-attachment: fixed;
+      line-height: 1.6;
+      font-size: 1rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @keyframes progressShine {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .read-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent));
+      background-size: 200% 100%;
+      animation: progressShine 3s linear infinite;
+      z-index: 10001;
+      transition: width 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    body.slides-view-active .layout {
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 9998;
+    }
+
+    body.sidebar-open .sidebar-backdrop {
+      display: block;
+    }
+
+    .wiki-header {
+      background: var(--wiki-sidebar-solid);
+      background-image: var(--wiki-sidebar);
+      color: var(--wiki-sidebar-text);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .wiki-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      max-height: 160px;
+      background: linear-gradient(180deg, rgba(129, 140, 248, 0.1), transparent 65%);
+      pointer-events: none;
+    }
+
+    .wiki-header-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.85rem 1.5rem;
+      padding: 0.75rem 1.25rem 0.65rem;
+      position: relative;
+    }
+
+    .wiki-header-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .wiki-header-brand .badge {
+      margin-bottom: 0;
+    }
+
+    .wiki-header-brand h1 {
+      margin: 0;
+    }
+
+    .wiki-header-search {
+      flex: 1 1 200px;
+      max-width: 22rem;
+      min-width: 160px;
+      margin-left: auto;
+    }
+
+    @media (max-width: 640px) {
+      .wiki-header-search {
+        flex-basis: 100%;
+        max-width: none;
+        margin-left: 0;
+      }
+    }
+
+    .wiki-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      position: relative;
+    }
+
+    .wiki-header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+      color: rgba(232, 234, 244, 0.55);
+      padding: 0.32rem 0.6rem;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      width: fit-content;
+    }
+
+    .wiki-header .badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .nav-search-wrap {
+      margin-bottom: 0;
+    }
+
+    .nav-search-wrap label {
+      display: block;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.7;
+      margin-bottom: 0.3rem;
+    }
+
+    .nav-search {
+      width: 100%;
+      padding: 0.5rem 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.28);
+      color: var(--wiki-sidebar-text);
+      font-size: 0.84rem;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+    }
+
+    .nav-search::placeholder {
+      color: rgba(232, 236, 242, 0.4);
+    }
+
+    .nav-search:focus {
+      outline: none;
+      border-color: rgba(129, 140, 248, 0.65);
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+      transform: translateY(-1px);
+    }
+
+    @keyframes navItemIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .wiki-header-nav {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      justify-content: center;
+      gap: 0.35rem 0.45rem;
+      row-gap: 0.45rem;
+      padding: 0.5rem 1rem 0.85rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(129, 140, 248, 0.4) transparent;
+    }
+
+    .wiki-header-nav::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .wiki-header-nav::-webkit-scrollbar-thumb {
+      background: rgba(129, 140, 248, 0.35);
+      border-radius: 999px;
+    }
+
+    .wiki-header-nav a.nav-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      color: rgba(232, 234, 244, 0.78);
+      text-decoration: none;
+      padding: 0.5rem 0.75rem 0.55rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      text-align: center;
+      max-width: 9.5rem;
+      min-width: 4.5rem;
+      position: relative;
+      overflow: visible;
+      transition: color 0.3s ease, background 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+      animation: navItemIn 0.45s ease backwards;
+      border: 1px solid transparent;
+    }
+
+    .wiki-header-nav a.nav-link:nth-child(1) { animation-delay: 0.03s; }
+    .wiki-header-nav a.nav-link:nth-child(2) { animation-delay: 0.05s; }
+    .wiki-header-nav a.nav-link:nth-child(3) { animation-delay: 0.07s; }
+    .wiki-header-nav a.nav-link:nth-child(4) { animation-delay: 0.09s; }
+    .wiki-header-nav a.nav-link:nth-child(5) { animation-delay: 0.11s; }
+    .wiki-header-nav a.nav-link:nth-child(6) { animation-delay: 0.13s; }
+    .wiki-header-nav a.nav-link:nth-child(7) { animation-delay: 0.15s; }
+    .wiki-header-nav a.nav-link:nth-child(8) { animation-delay: 0.17s; }
+    .wiki-header-nav a.nav-link:nth-child(9) { animation-delay: 0.19s; }
+    .wiki-header-nav a.nav-link:nth-child(10) { animation-delay: 0.21s; }
+    .wiki-header-nav a.nav-link:nth-child(11) { animation-delay: 0.23s; }
+    .wiki-header-nav a.nav-link:nth-child(12) { animation-delay: 0.25s; }
+    .wiki-header-nav a.nav-link:nth-child(13) { animation-delay: 0.27s; }
+
+    .wiki-header-nav a.nav-link::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%) scaleX(0);
+      width: 70%;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent));
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .wiki-header-nav a.nav-link:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .wiki-header-nav a.nav-link:hover::before {
+      transform: translateX(-50%) scaleX(0.65);
+    }
+
+    .wiki-header-nav a.nav-link.nav-active {
+      background: linear-gradient(160deg, rgba(129, 140, 248, 0.28), rgba(56, 189, 248, 0.12));
+      color: #fff;
+      font-weight: 600;
+      border-color: rgba(129, 140, 248, 0.4);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .wiki-header-nav a.nav-link.nav-active::before {
+      transform: translateX(-50%) scaleX(1);
+    }
+
+    .wiki-header-nav a.nav-link .nav-link-index {
+      display: none;
+    }
+
+    .wiki-header-nav a.nav-link .nav-link-title {
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .wiki-header-nav a.nav-link.nav-pulse {
+      animation: navPulse 0.55s ease;
+    }
+
+    @keyframes navPulse {
+      0% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0.5); }
+      100% { box-shadow: 0 0 0 12px transparent; }
+    }
+
+    .wiki-header-nav a.nav-hidden {
+      display: none;
+    }
+
+    .header-menu-toggle {
+      display: none;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--wiki-sidebar-text);
+      padding: 0.45rem 0.85rem;
+      font-size: 0.82rem;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .header-menu-toggle:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    @media (max-width: 900px) {
+      .header-menu-toggle {
+        display: inline-flex;
+      }
+
+      .wiki-header {
+        position: relative;
+      }
+
+      .wiki-header-nav {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.2rem;
+        padding: 0.75rem 1rem 1rem;
+        max-height: min(72vh, 520px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: var(--wiki-sidebar-solid);
+        background-image: var(--wiki-sidebar);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0 0 var(--radius) var(--radius);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        z-index: 9999;
+      }
+
+      body.sidebar-open .wiki-header-nav {
+        display: flex;
+      }
+
+      .wiki-header-nav a.nav-link {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        max-width: 20rem;
+        width: 100%;
+        min-width: 0;
+        text-align: center;
+        padding: 0.55rem 0.75rem;
+      }
+
+      .wiki-header-nav a.nav-link::before {
+        left: 0;
+        bottom: 50%;
+        transform: translateY(50%) scaleY(0);
+        width: 3px;
+        height: 0;
+        border-radius: 0 3px 3px 0;
+        background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      }
+
+      .wiki-header-nav a.nav-link:hover::before,
+      .wiki-header-nav a.nav-link.nav-active::before {
+        transform: translateY(50%) scaleY(1);
+        height: 65%;
+        width: 3px;
+      }
+
+      .wiki-header-nav a.nav-link .nav-link-title {
+        -webkit-line-clamp: 3;
+      }
+    }
+
+    .wiki-header-toolbar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem 0.65rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .wiki-header .wiki-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      margin: 0;
+      padding: 0.45rem 0.65rem;
+      max-width: 100%;
+      background: rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .wiki-header .wiki-toolbar button {
+      font: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--wiki-sidebar-text);
+      padding: 0.42rem 0.9rem;
+      font-size: 0.8rem;
+      transition: transform 0.2s, box-shadow 0.25s, border-color 0.2s, background 0.2s;
+    }
+
+    .wiki-header .wiki-toolbar button:hover:not(:disabled) {
+      border-color: rgba(129, 140, 248, 0.45);
+      background: rgba(129, 140, 248, 0.18);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    .wiki-header .wiki-toolbar button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .wiki-header .wiki-toolbar button.btn-primary {
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 18px var(--accent-glow);
+    }
+
+    [data-theme="dark"] .wiki-header .wiki-toolbar button.btn-primary {
+      background: linear-gradient(135deg, #6366f1, var(--accent-2));
+    }
+
+    .wiki-header .wiki-toolbar button.btn-primary:hover:not(:disabled) {
+      filter: brightness(1.08);
+      border-color: transparent;
+    }
+
+    .wiki-header-toolbar .toolbar-hint {
+      margin: 0;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      color: rgba(232, 234, 244, 0.5);
+      text-align: center;
+      max-width: 36rem;
+      padding: 0 0.5rem;
+    }
+
+    main {
+      padding: 2rem 2.5rem 3rem;
+      max-width: 52rem;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 900px) {
+      main { padding: 1.25rem; padding-top: 0.75rem; }
+    }
+
+    article.section h2.section-heading {
+      display: flex;
+      align-items: stretch;
+      margin: 0 0 0.75rem;
+      padding: 0;
+      border: none;
+    }
+
+    .section-toggle .section-title {
+      font-family: var(--font-display);
+    }
+
+    .section-toggle {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      font-size: 1.18rem;
+      font-weight: 600;
+      color: inherit;
+      background: transparent;
+      border: none;
+      padding: 0.35rem 0;
+      cursor: pointer;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
+      border-radius: 0;
+    }
+
+    .section-toggle:hover {
+      color: var(--accent);
+    }
+
+    .section-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .section-chevron {
+      flex-shrink: 0;
+      width: 1.25rem;
+      display: inline-flex;
+      justify-content: center;
+      transition: transform 0.2s ease;
+      opacity: 0.75;
+      margin-top: 0.15rem;
+    }
+
+    .section-toggle[aria-expanded="false"] .section-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .section-panel {
+      overflow: visible;
+      transition: opacity 0.2s ease;
+    }
+
+    .section-panel[hidden] {
+      display: none;
+    }
+
+    article.section.is-collapsed {
+      padding-bottom: 1rem;
+    }
+
+    #portada {
+      scroll-margin-top: clamp(8rem, 24vh, 13.5rem);
+    }
+
+    .hero {
+      position: relative;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.85rem 2rem;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 8px 40px var(--shadow-lg);
+      overflow: visible;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -40%;
+      right: -15%;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(79, 70, 229, 0.15), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2), transparent);
+      opacity: 0.85;
+    }
+
+    .hero h2 {
+      font-family: var(--font-display);
+      margin: 0 0 0.65rem;
+      font-size: clamp(1.35rem, 3vw, 1.75rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      position: relative;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin: 0;
+      position: relative;
+    }
+
+    article.section {
+      position: relative;
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.65rem 1.85rem;
+      margin-bottom: 1.35rem;
+      scroll-margin-top: clamp(8rem, 24vh, 13.5rem);
+      box-shadow: 0 4px 24px var(--shadow);
+      transition: box-shadow 0.35s ease, transform 0.35s ease, border-color 0.3s;
+    }
+
+    main:not(.mode-slides) article.section:hover {
+      box-shadow: 0 12px 40px var(--shadow-lg);
+      transform: translateY(-2px);
+      border-color: rgba(79, 70, 229, 0.15);
+    }
+
+    #portada.content-highlight,
+    article.section.content-highlight {
+      animation: sectionFlash 0.85s ease;
+    }
+
+    @keyframes sectionFlash {
+      0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.35); }
+      100% { box-shadow: 0 8px 40px var(--shadow-lg); }
+    }
+
+    article.section h2 {
+      font-family: var(--font-display);
+      margin: 0 0 1rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent-soft);
+    }
+
+    article.section h3 {
+      margin: 1.25rem 0 0.5rem;
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    article.section p,
+    article.section li {
+      margin: 0.5rem 0;
+    }
+
+    article.section ul,
+    article.section ol {
+      padding-left: 1.35rem;
+    }
+
+    .callout {
+      background: linear-gradient(105deg, var(--accent-soft), rgba(14, 165, 233, 0.08));
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.15rem;
+      margin: 1rem 0;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    .cite {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+      padding-left: 1rem;
+      border-left: 3px solid var(--border);
+    }
+
+    .wiki-video-heading {
+      margin: 1.35rem 0 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      color: var(--text);
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .wiki-video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+      gap: 1.25rem 1rem;
+      margin: 0.35rem 0 0.5rem;
+    }
+
+    .wiki-video {
+      margin: 0;
+    }
+
+    .wiki-video-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 22px var(--shadow);
+      background: #0f0f12;
+    }
+
+    .wiki-video-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .wiki-video figcaption {
+      margin-top: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .wiki-video figcaption a {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .wiki-video figcaption a:hover {
+      text-decoration: underline;
+    }
+
+    .wiki-video-file-hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0.75rem 0 0;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1px dashed var(--border);
+      background: var(--accent-soft);
+    }
+
+    .team-note {
+      background: #fff8e6;
+      border: 1px solid #e6d099;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    footer.wiki-footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    article.section table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    article.section table th,
+    article.section table td {
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border);
+    }
+
+    article.section table thead tr {
+      background: linear-gradient(180deg, var(--accent-soft), transparent) !important;
+    }
+
+    article.section table tbody tr:nth-child(even) {
+      background: rgba(79, 70, 229, 0.03);
+    }
+
+    .back-to-top {
+      position: fixed;
+      bottom: 1.35rem;
+      right: 1.35rem;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(145deg, var(--accent), #6366f1);
+      color: #fff;
+      font-size: 1.15rem;
+      cursor: pointer;
+      box-shadow: 0 8px 28px var(--accent-glow);
+      z-index: 9990;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .back-to-top.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .back-to-top:hover {
+      transform: translateY(-4px) scale(1.05);
+    }
+
+    .back-to-top:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .chat-widget {
+      position: fixed;
+      left: 1.25rem;
+      bottom: 1.25rem;
+      z-index: 10002;
+      font-family: var(--font-sans);
+    }
+
+    .chat-launcher {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 3.25rem;
+      height: 3.25rem;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      background: linear-gradient(145deg, var(--accent-2), var(--accent));
+      color: #fff;
+      box-shadow: 0 8px 28px rgba(14, 165, 233, 0.35);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .chat-launcher svg {
+      width: 1.45rem;
+      height: 1.45rem;
+      flex-shrink: 0;
+    }
+
+    .chat-launcher:hover {
+      transform: scale(1.06);
+    }
+
+    .chat-launcher[aria-expanded="true"] {
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.45);
+    }
+
+    .chat-panel {
+      position: absolute;
+      bottom: calc(100% + 0.65rem);
+      left: 0;
+      width: min(100vw - 2.5rem, 400px);
+      max-height: min(520px, 70vh);
+      display: flex;
+      flex-direction: column;
+      background: var(--card-solid);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 16px 48px var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    [data-theme="dark"] .chat-panel {
+      background: var(--card-solid);
+    }
+
+    .chat-panel[hidden] {
+      display: none !important;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(105deg, var(--accent-soft), rgba(14, 165, 233, 0.08));
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .chat-close {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0.15rem 0.35rem;
+      border-radius: 6px;
+    }
+
+    .chat-close:hover {
+      color: var(--text);
+      background: var(--accent-soft);
+    }
+
+    .chat-messages {
+      flex: 1 1 auto;
+      min-height: 200px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .chat-bubble {
+      max-width: 92%;
+      padding: 0.55rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-bubble.bot {
+      align-self: flex-start;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-bubble.err {
+      align-self: stretch;
+      background: rgba(248, 113, 113, 0.12);
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      color: #b91c1c;
+      font-size: 0.82rem;
+    }
+
+    [data-theme="dark"] .chat-bubble.err {
+      color: #fca5a5;
+    }
+
+    .chat-bubble.sys {
+      align-self: stretch;
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: transparent;
+      border: 1px dashed var(--border);
+    }
+
+    .chat-form {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.65rem;
+      border-top: 1px solid var(--border);
+      align-items: flex-end;
+    }
+
+    .chat-form textarea {
+      flex: 1;
+      resize: none;
+      min-height: 2.5rem;
+      max-height: 6rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--card-solid);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.88rem;
+    }
+
+    .chat-form textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .chat-form button[type="submit"],
+    .chat-form #chatSend {
+      flex-shrink: 0;
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    .chat-form button[type="submit"]:hover:not(:disabled),
+    .chat-form #chatSend:hover:not(:disabled) {
+      filter: brightness(1.06);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.45);
+    }
+
+    .chat-form button[type="submit"]:active:not(:disabled),
+    .chat-form #chatSend:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .chat-form button[type="submit"]:focus-visible,
+    .chat-form #chatSend:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--accent-soft), 0 2px 8px rgba(79, 70, 229, 0.35);
+    }
+
+    .chat-form button[type="submit"]:disabled,
+    .chat-form #chatSend:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    [data-theme="dark"] .chat-form #chatSend,
+    [data-theme="dark"] .chat-form button[type="submit"] {
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .chat-typing {
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding: 0 0.85rem 0.35rem;
+    }
+
+    @media (max-width: 520px) {
+      .chat-widget {
+        left: 0.75rem;
+        bottom: 0.75rem;
+      }
+
+      .chat-panel {
+        width: calc(100vw - 1.5rem);
+      }
+    }
+
+    .slides-stage {
+      position: relative;
+    }
+
+    /* En vista continua el carril no añade caja: los .wiki-slide siguen fluyendo como antes. */
+    main:not(.mode-slides) .slides-track {
+      display: contents;
+    }
+
+    main:not(.mode-slides) .wiki-slide {
+      position: static;
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      padding-bottom: 0;
+    }
+
+    body.slides-view-active {
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    main.mode-slides {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
+      max-height: none;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      overflow: hidden;
+      padding-top: 0.75rem;
+    }
+
+    main.mode-slides .slides-stage {
+      flex: 1 1 auto;
+      min-height: 0;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    /* Carril horizontal entre secciones; dentro de cada diapositiva sí hay scroll si el texto no cabe. */
+    main.mode-slides .slides-track {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      height: 100%;
+      min-height: 0;
+      width: calc(100% * var(--slide-count, 13));
+      transform: translateX(calc(-100% * var(--slide-index, 0) / var(--slide-count, 13)));
+      transition: transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      main.mode-slides .slides-track {
+        transition: none;
+      }
+    }
+
+    main.mode-slides .wiki-slide {
+      position: relative;
+      flex: 0 0 calc(100% / var(--slide-count, 13));
+      min-width: 0;
+      width: calc(100% / var(--slide-count, 13));
+      height: 100%;
+      min-height: 0;
+      box-sizing: border-box;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 0.85rem 1rem 1.5rem;
+      opacity: 1;
+      transform: none;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    main.mode-slides .wiki-slide.is-active {
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    .slide-controls {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      position: sticky;
+      bottom: 0;
+      z-index: 50;
+      box-shadow: 0 -8px 32px var(--shadow-lg);
+    }
+
+    main.mode-slides .slide-controls {
+      display: flex;
+      flex-shrink: 0;
+      margin-top: 0.5rem;
+      position: relative;
+      bottom: auto;
+    }
+
+    .slide-controls .slide-counter {
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      flex: 1;
+      text-align: center;
+    }
+
+    .slide-controls .slide-dots {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      flex-basis: 100%;
+      order: 3;
+      margin-top: 0.35rem;
+    }
+
+    .slide-controls .slide-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: transform 0.25s, background 0.25s;
+    }
+
+    .slide-controls .slide-dots span.is-current {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      transform: scale(1.35);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .slide-controls button {
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 0.5rem 1.1rem;
+    }
+
+    .slide-controls button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    main:not(.mode-slides) .slide-controls {
+      display: none !important;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+
+      .read-progress {
+        animation: none;
+      }
+    }
+
+    body.wiki-gate-open {
+      overflow: hidden;
+    }
+
+    body.wiki-gate-open .layout,
+    body.wiki-gate-open .chat-widget,
+    body.wiki-gate-open .back-to-top {
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .welcome-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 10050;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      background: var(--bg);
+      background-image: var(--bg-mesh);
+      background-attachment: fixed;
+    }
+
+    .welcome-gate[hidden] {
+      display: none !important;
+    }
+
+    .welcome-gate-card {
+      width: 100%;
+      max-width: 26rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem 1.85rem;
+      box-shadow: 0 20px 60px var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .welcome-gate-card::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      opacity: 0.9;
+    }
+
+    .welcome-gate-card h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.25rem, 3.5vw, 1.55rem);
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+
+    .welcome-gate-card > p {
+      margin: 0 0 1.25rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .welcome-gate-card label {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .welcome-gate-card input[type="text"] {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      font: inherit;
+      font-size: 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--card-solid);
+      color: var(--text);
+      margin-bottom: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .welcome-gate-card input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .welcome-gate-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+    }
+
+    .welcome-gate-actions button[type="submit"] {
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      padding: 0.6rem 1.35rem;
+      font-size: 0.92rem;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      color: #fff;
+      box-shadow: 0 6px 22px var(--accent-glow);
+      transition: transform 0.2s, filter 0.2s;
+    }
+
+    .welcome-gate-actions button[type="submit"]:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .welcome-gate-error {
+      margin: 0 0 0.75rem;
+      font-size: 0.85rem;
+      color: #b91c1c;
+      min-height: 1.25em;
+    }
+
+    [data-theme="dark"] .welcome-gate-error {
+      color: #fca5a5;
+    }
+
+    .hero-user-welcome {
+      font-size: 1.02rem;
+      line-height: 1.5;
+      margin: 0 0 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(105deg, var(--accent-soft), rgba(14, 165, 233, 0.08));
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .hero-user-welcome strong {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .hero-user-welcome[hidden] {
+      display: none !important;
+    }
+
+    .wiki-header-userline {
+      margin: 0.15rem 0 0;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(232, 234, 244, 0.72);
+      letter-spacing: 0.01em;
+    }
+
+    .wiki-header-userline[hidden] {
+      display: none !important;
+    }
+
+    .wiki-toolbar .btn-ghost {
+      background: transparent;
+      border-style: dashed;
+      opacity: 0.92;
+    }
+
+    .wiki-toolbar .btn-ghost:hover:not(:disabled) {
+      opacity: 1;
+    }
+
+    .wiki-footer #footerPersonal:not(:empty) {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div
+    id="welcomeGate"
+    class="welcome-gate"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="welcomeGateTitle"
+    aria-describedby="welcomeGateDesc"
+    hidden
+  >
+    <div class="welcome-gate-card">
+      <h2 id="welcomeGateTitle">Antes de entrar a la wiki</h2>
+      <p class="welcome-gate-error" id="welcomeGateError" aria-live="polite"></p>
+      <form id="welcomeGateForm" novalidate>
+        <label for="welcomeUserName">Tu nombre o cómo quieres que te llamemos</label>
+        <input
+          type="text"
+          id="welcomeUserName"
+          name="userName"
+          autocomplete="name"
+          maxlength="80"
+          placeholder="Ej.: Andrea, profe García…"
+          required
+        />
+        <div class="welcome-gate-actions">
+          <button type="submit">Entrar a la wiki</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="read-progress" id="readProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progreso de lectura"></div>
+  <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+  <div class="layout">
+    <header class="wiki-header" id="wiki-sidebar" aria-label="Cabecera e índice de la wiki">
+      <div class="wiki-header-top">
+        <button type="button" class="header-menu-toggle menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="wiki-header-nav" aria-label="Abrir o cerrar índice">☰ Menú</button>
+        <div class="wiki-header-brand">
+          <span class="badge">Eje 2 · SO II · Referente López Urrea</span>
+          <h1>Aquí entre iguales</h1>
+          <p class="wiki-header-userline" id="headerUserLine" hidden></p>
+        </div>
+        <div class="wiki-header-search">
+          <div class="nav-search-wrap">
+            <label for="navSearch">Buscar en el índice</label>
+            <input type="search" id="navSearch" class="nav-search" placeholder="Ej.: seguridad, APA…" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+      <div class="wiki-header-toolbar">
+        <div class="wiki-toolbar" role="toolbar" aria-label="Acciones de la wiki">
+          <button type="button" id="themeToggle" title="Cambiar tema claro u oscuro">🌙 Oscuro</button>
+          <button type="button" id="viewModeToggle" title="Cambiar entre carrusel horizontal y lectura con scroll vertical">📃 Vista continua</button>
+          <button type="button" id="expandAll">Expandir secciones</button>
+          <button type="button" id="collapseAll">Contraer secciones</button>
+          <button type="button" class="btn-ghost" id="changeUserName" title="Volver a indicar tu nombre">Cambiar nombre</button>
+        </div>
+        <p class="toolbar-hint" id="toolbarHint">Carrusel: índice o flechas ← → · «Vista continua» para leer con scroll vertical</p>
+      </div>
+      <nav class="wiki-header-nav" id="wiki-header-nav" aria-label="Secciones">
+        <a class="nav-link" href="#portada" data-section="portada"><span class="nav-link-index">01</span><span class="nav-link-title">Portada / Marco</span></a>
+        <a class="nav-link" href="#objetivo" data-section="objetivo"><span class="nav-link-index">02</span><span class="nav-link-title">Objetivo</span></a>
+        <a class="nav-link" href="#descripcion" data-section="descripcion"><span class="nav-link-index">03</span><span class="nav-link-title">Descripción</span></a>
+        <a class="nav-link" href="#contexto" data-section="contexto"><span class="nav-link-index">04</span><span class="nav-link-title">Contexto</span></a>
+        <a class="nav-link" href="#tipo-red" data-section="tipo-red"><span class="nav-link-index">05</span><span class="nav-link-title">Tipo de red (directiva)</span></a>
+        <a class="nav-link" href="#seguridad" data-section="seguridad"><span class="nav-link-index">06</span><span class="nav-link-title">Seguridad y riesgos</span></a>
+        <a class="nav-link" href="#condiciones-cs" data-section="condiciones-cs"><span class="nav-link-index">07</span><span class="nav-link-title">Condiciones cliente-servidor</span></a>
+        <a class="nav-link" href="#desventajas-cs" data-section="desventajas-cs"><span class="nav-link-index">08</span><span class="nav-link-title">Desventajas cliente-servidor</span></a>
+        <a class="nav-link" href="#ventajas-cs" data-section="ventajas-cs"><span class="nav-link-index">09</span><span class="nav-link-title">Ventajas cliente-servidor</span></a>
+        <a class="nav-link" href="#arquitectura" data-section="arquitectura"><span class="nav-link-index">10</span><span class="nav-link-title">Arquitectura propuesta</span></a>
+        <a class="nav-link" href="#conclusiones" data-section="conclusiones"><span class="nav-link-index">11</span><span class="nav-link-title">Conclusiones</span></a>
+        <a class="nav-link" href="#equipo" data-section="equipo"><span class="nav-link-index">12</span><span class="nav-link-title">Criterios de edición</span></a>
+        <a class="nav-link" href="#bibliografia" data-section="bibliografia"><span class="nav-link-index">13</span><span class="nav-link-title">Bibliografía (APA)</span></a>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <div class="slides-stage" id="slidesStage" aria-live="polite">
+      <div class="slides-track" id="slidesTrack">
+      <div class="wiki-slide is-active" data-slide-index="0">
+      <header class="hero" id="portada">
+        <h2>Wiki: diseño de red para «Protejo sus Datos»</h2>
+        <p class="hero-user-welcome" id="heroUserWelcome" hidden></p>
+        <p class="meta">
+          <strong>Nombre de la wiki:</strong> Aquí entre iguales.<br />
+          <strong>Referente de pensamiento:</strong> López Urrea, L. <em>Sistemas operativos II — Eje 2: Analicemos la situación</em> (redes seguras, SO de red, servicios, arquitectura cliente-servidor y seguridad en el diseño y la administración).<br />
+        </p>
+      </header>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="1">
+      <article class="section" id="objetivo">
+        <h2>Objetivo de aprendizaje</h2>
+        <p>
+          Proponer, a partir de posiciones sustentadas con argumentos técnicos y evaluación de contextos,
+          un diseño de red y de <strong>entorno de sistemas operativos</strong> que se ajuste al escenario de la empresa «Protejo sus Datos»
+          en su ingreso al mercado colombiano, con servicios de almacenamiento en la nube y exigencias de
+          <strong>confidencialidad, integridad y disponibilidad</strong> (tríada de la seguridad de la información, según el referente).
+        </p>
+        <p>
+          El planteamiento del curso parte de una pregunta central: qué implicaciones tiene, para la seguridad de la información,
+          la elección entre un esquema <strong>entre iguales</strong> y uno <strong>cliente-servidor</strong>, considerando tipo de datos,
+          control de acceso, costos de licenciamiento e infraestructura y el papel del <strong>sistema operativo de red</strong> en la administración centralizada de recursos.
+        </p>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="2">
+      <article class="section" id="descripcion">
+        <h2>Descripción de la actividad</h2>
+        <p>
+          Esta wiki evalúa el contexto de «Protejo sus Datos» y propone una arquitectura de red alineada con el
+          <strong>Eje 2 — Analicemos la situación</strong> de <em>Sistemas operativos II</em> (López Urrea): sistemas operativos de red,
+          servicios habituales (por ejemplo control de acceso, DHCP, almacenamiento, acceso remoto), propiedades de la arquitectura
+          cliente-servidor y criterios de seguridad en el diseño del SO (modo núcleo vs. modo usuario, políticas, usuarios y privilegios, firewall).
+        </p>
+        <h3 class="wiki-video-heading">Videocápsulas del referente (complemento)</h3>
+        <p class="wiki-video-file-hint" id="wikiVideoFileHint" hidden>
+          Si ves «Error 153» en los reproductores, YouTube necesita un origen válido: abre esta wiki con un servidor local (por ejemplo Live Server en <code>http://127.0.0.1</code>) o publícala en HTTPS. Siempre puedes usar «Abrir en YouTube» debajo de cada video.
+        </p>
+        <div class="wiki-video-grid" role="region" aria-label="Videocápsulas embebidas del Eje 2">
+          <figure class="wiki-video">
+            <div class="wiki-video-frame">
+              <iframe
+                class="wiki-youtube-embed"
+                data-youtube-id="KA7Ngcgth0Q"
+                src="about:blank"
+                title="Modelo cliente-servidor — explicación sencilla"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"
+              ></iframe>
+            </div>
+            <figcaption>
+              Modelo cliente-servidor (explicación sencilla).
+              <a href="https://www.youtube.com/watch?v=KA7Ngcgth0Q" target="_blank" rel="noopener noreferrer">Abrir en YouTube</a>
+            </figcaption>
+          </figure>
+          <figure class="wiki-video">
+            <div class="wiki-video-frame">
+              <iframe
+                class="wiki-youtube-embed"
+                data-youtube-id="QN49FHpHifE"
+                src="about:blank"
+                title="Seguridad en sistemas operativos — arquitectura"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"
+              ></iframe>
+            </div>
+            <figcaption>
+              Seguridad en sistemas operativos (arquitectura).
+              <a href="https://youtu.be/QN49FHpHifE" target="_blank" rel="noopener noreferrer">Abrir en YouTube</a>
+            </figcaption>
+          </figure>
+        </div>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="3">
+      <article class="section" id="contexto">
+        <h2>Contexto (resumen para la wiki)</h2>
+        <p>
+          La empresa «Protejo sus Datos» ofrece almacenamiento en la nube con énfasis en confidencialidad y disponibilidad continua.
+          Contrata servicios en AWS. La directiva propone reducir costos conectando por un <strong>switch</strong> los equipos de
+          ingeniería (configuración de servicios) y administración, <strong>compartiendo</strong> el acceso a Internet hacia la gestión
+          de la conexión con Amazon.
+        </p>
+        <p>
+          Desde la perspectiva del referente, un <strong>«ahorro» inicial</strong> en topología y equipamiento puede traducirse en mayor costo futuro
+          si aparecen brechas de seguridad, dificultad de escalabilidad o ausencia de un <strong>sistema operativo de red</strong> que centralice
+          políticas, cuentas y servicios. El tratamiento de datos personales (Ley 1581 de 2012) exige, además, controles técnicos acordes al riesgo,
+          no solo decisiones económicas de corto plazo.
+        </p>
+        <div class="team-note">
+          <strong>Nota:</strong> aquí puedes registrar las consideraciones sobre el contexto y los puntos siguientes; la sección de conclusiones concentra el cierre del análisis.
+        </div>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="4">
+      <article class="section" id="tipo-red">
+        <h2>1. Si se cumple la propuesta de la directiva: tipo de red y ventajas técnicas</h2>
+        <p>
+          Conectar estaciones de ingeniería y administración a un <strong>conmutador (switch) de capa 2</strong> y
+          compartir un único enlace hacia Internet configura, en esencia, una <strong>LAN Ethernet conmutada</strong> (red de área local).
+          El tráfico interno se encamina por dominios de colisión separados por puerto; la salida a Internet suele concentrarse en un
+          <strong>router o firewall perimetral</strong> (o CPE del proveedor) mediante una única dirección pública o NAT.
+        </p>
+        <h3>Ventajas técnicas argumentadas</h3>
+        <ul>
+          <li><strong>Costo y simplicidad operativa inicial:</strong> un solo enlace de Internet y un switch reducen equipamiento y puntos de contrato con el ISP en la fase de arranque (Tanenbaum &amp; Wetherall, 2011).</li>
+          <li><strong>Rendimiento en la LAN:</strong> los switches modernos ofrecen conexión dedicada por puerto, mejor que hubs compartidos (Forouzan &amp; Mosharraf, 2013).</li>
+          <li><strong>Facilidad de conectar a la nube:</strong> desde la perspectiva de conectividad, una LAN con salida estable permite alcanzar los endpoints de AWS (VPC, APIs) siempre que exista ruta y DNS correctos.</li>
+        </ul>
+        <h3>Relación con «entre iguales» y crecimiento hacia cliente-servidor</h3>
+        <p>
+          El referente explica que en redes <strong>entre iguales</strong> un mismo equipo puede actuar como cliente o servidor según el recurso,
+          lo que en escenarios amplios puede generar <strong>inseguridad, falta de escalabilidad y dificultades de administración</strong>.
+          Cuando aumentan equipos, usuarios y la criticidad de la información, suele ser razonable un <strong>sistema operativo de red</strong> con rol
+          servidor dedicado que comparta recursos y aplique políticas de acceso (López Urrea, s.f.; Gómez, 2015).
+        </p>
+        <p class="cite">
+          Estas ventajas de la propuesta «mínima» de la directiva no niegan riesgos de seguridad y cumplimiento; se complementan con la sección de evaluación de riesgos y con la postura cliente-servidor recomendada más adelante.
+        </p>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="5">
+      <article class="section" id="seguridad">
+        <h2>2. Evaluación de seguridad de la información (consecuencias posibles)</h2>
+        <p>
+          Compartir el mismo segmento de red y el mismo camino hacia Internet para equipos de administración e ingeniería
+          <strong>aumenta la superficie de ataque lateral</strong>: un compromiso en una estación (phishing, malware) puede facilitar
+          el movimiento hacia otras máquinas del mismo broadcast/L2 si no hay segmentación (ISO/IEC 27001:2022).
+        </p>
+        <ul>
+          <li><strong>Confidencialidad:</strong> tráfico de gestión hacia AWS mezclado con uso administrativo general puede exponerse a sniffing o ARP spoofing en LAN plana si no se cifra end-to-end o no se aíslan VLANs (Stallings &amp; Brown, 2018).</li>
+          <li><strong>Disponibilidad 24/7:</strong> un único punto de fallo en el enlace o el CPE afecta a todos los roles; fallos del proveedor impactan ingeniería y administración a la vez.</li>
+          <li><strong>Cumplimiento:</strong> para datos personales en Colombia, la Ley 1581 de 2012 y el marco reglamentario asociado exigen medidas técnicas adecuadas; una topología sin segregación dificulta demostrar control de acceso por función (Congreso de Colombia, 2012).</li>
+        </ul>
+        <h3>Seguridad en el diseño del sistema operativo (marco del referente)</h3>
+        <p>
+          El referente distingue el <strong>modo núcleo (kernel)</strong>, con acceso privilegiado al hardware, del <strong>modo usuario</strong>, donde las aplicaciones
+          operan con espacios de memoria acotados: un fallo en aplicación no debería tumbar todo el sistema, mientras que un error grave en el núcleo
+          puede provocar bloqueo total (Fernández López, 2007). Los sistemas operativos encapsulan el acceso a recursos mediante procesos con identificador propio,
+          reduciendo que una aplicación comprometida interfiera con el resto o con el kernel.
+        </p>
+        <p>
+          En estaciones de ingeniería y administración conviene combinar endurecimiento del SO con <strong>políticas de seguridad</strong> (por ejemplo UAC en Windows o equivalentes)
+          y, en arquitectura cliente-servidor, políticas aplicadas desde el <strong>dominio</strong> validadas contra el servidor (López Urrea, s.f.).
+        </p>
+        <p class="cite">
+          <strong>Citas APA (ejemplo):</strong> Congreso de Colombia. (2012, 17 de octubre). <em>Ley 1581 de 2012</em> (por la cual se dictan disposiciones generales para la protección de datos personales). Diario Oficial No. 48.483.<br />
+          ISO/IEC. (2022). <em>Information security, cybersecurity and privacy protection — Information security management systems — Requirements</em> (ISO/IEC 27001:2022).
+        </p>
+        <div class="team-note">
+          Profundizar con Fernández (2007) y con las lecturas y videoresúmenes indicados en el referente del curso.
+        </div>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="6">
+      <article class="section" id="condiciones-cs">
+        <h2>3. Condiciones para implementar una red cliente-servidor en este contexto</h2>
+        <p>
+          Según el referente, la arquitectura cliente-servidor supone <strong>roles diferenciados</strong>: el cliente solicita servicios y el servidor los provee,
+          validando identidad y permisos antes de responder. Los sistemas operativos de red habilitan servicios como
+          <strong>control de acceso</strong> (cuentas y grupos en base de datos en servidor), <strong>DHCP</strong> (asignación de direcciones IP),
+          <strong>almacenamiento de archivos</strong>, <strong>acceso remoto</strong> y otros que deben alinearse a la política de seguridad de la organización (López Urrea, s.f.).
+        </p>
+        <ul>
+          <li><strong>Servicios centralizados:</strong> al menos un servidor (físico o en nube) con SO de red que ofrezca autenticación, directorio o políticas según el rol; idealmente con <strong>protocolos asimétricos</strong> (muchos clientes a un servicio pasivo en espera), como describe el referente.</li>
+          <li><strong>Red confiable y direccionamiento:</strong> IP fijas o reservas DHCP para servidores críticos; DNS interno coherente.</li>
+          <li><strong>Acuerdos de confidencialidad y perfiles:</strong> definición de grupos (ingeniería, administración, auditoría) y permisos mínimos; en Windows Server el conjunto gobernado suele modelarse como <strong>dominio</strong> (López Urrea, s.f.).</li>
+          <li><strong>Propiedades deseables del diseño:</strong> encapsulamiento de servicios, integridad de datos en cliente-tránsito-servidor, posibilidad de <strong>escalabilidad vertical u horizontal</strong> y modularidad para tolerar fallos (López Urrea, s.f.).</li>
+          <li><strong>Continuidad:</strong> respaldos, redundancia de enlace o de equipo según el SLA 24/7 prometido a clientes finales.</li>
+          <li><strong>Integración híbrida:</strong> cliente-servidor local puede coexistir con cargas en AWS (VPN, Direct Connect o enlaces cifrados), manteniendo trazabilidad entre identidades on-premise e IAM en la nube (Amazon Web Services, 2024).</li>
+        </ul>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="7">
+      <article class="section" id="desventajas-cs">
+        <h2>4. Desventajas de una solución cliente-servidor (argumentos con APA)</h2>
+        <ul>
+          <li><strong>Punto único de fallo si no hay redundancia:</strong> la caída del servidor central interrumpe autenticación o aplicaciones críticas (Tanenbaum &amp; Wetherall, 2011).</li>
+          <li><strong>Costos de operación y especialización:</strong> administración de parches, hardening y monitoreo 24/7 incrementa OPEX; el referente advierte que el ahorro inicial en esquemas sin SO de red puede revertirse en mayor inversión por licenciamiento y mantenimiento mal dimensionados (López Urrea, s.f.; Gómez, 2015).</li>
+          <li><strong>Cuellos de botella:</strong> concentrar lógica y datos en pocos servidores puede limitar escalabilidad si el diseño no prevé balanceo o réplicas (Stallings &amp; Brown, 2018).</li>
+          <li><strong>Complejidad de despliegue inicial:</strong> frente a una LAN «plana» con un solo switch, el cliente-servidor exige planificar identidad, copias de seguridad y segmentación; el beneficio está en la gobernanza de la seguridad de la información (Raya, 2015).</li>
+        </ul>
+        <p class="cite">
+          Tanenbaum, A. S., &amp; Wetherall, D. J. (2011). <em>Computer networks</em> (5th ed.). Pearson.<br />
+          Stallings, W., &amp; Brown, L. (2018). <em>Computer security: Principles and practice</em> (4th ed.). Pearson.
+        </p>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="8">
+      <article class="section" id="ventajas-cs">
+        <h2>5. Ventajas de usar cliente-servidor</h2>
+        <p>
+          El referente destaca que los sistemas operativos de red permiten <strong>compartir recursos</strong> bajo reglas claras, <strong>gestionar usuarios y grupos</strong>,
+          mejorar integridad y seguridad, reducir tiempos de respuesta y facilitar inventario y mantenimiento de estaciones desde el servidor (López Urrea, s.f.).
+        </p>
+        <ul>
+          <li><strong>Control centralizado</strong> de cuentas, políticas y auditoría frente a repetir configuración en cada equipo (política por dominio en cliente-servidor).</li>
+          <li><strong>Servicios encapsulados:</strong> el servidor atiende conversaciones con cada cliente sin exponer el estado de las demás sesiones (López Urrea, s.f.).</li>
+          <li><strong>Seguridad y respaldo</strong> más homogéneos al concentrar datos sensibles en servidores endurecidos y aplicar copias de seguridad coordinadas.</li>
+          <li><strong>Escalabilidad:</strong> posibilidad de ampliar clientes (escalabilidad horizontal) o fortalecer servidores y roles (vertical), según el referente.</li>
+          <li><strong>Alineación con operación en la nube:</strong> directorios e identidad federada facilitan el acceso gobernado a AWS (Amazon Web Services, 2024).</li>
+        </ul>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="9">
+      <article class="section" id="arquitectura">
+        <h2>6. Arquitectura de red sugerida a directivos (roles, equipos, SO, grupos y perfiles)</h2>
+        <p>
+          <strong>Postura recomendada:</strong> no adoptar una LAN completamente plana para ingeniería y administración. Proponer una
+          <strong>LAN segmentada</strong> (VLANs) con <strong>firewall perimetral</strong>, <strong>salida a Internet controlada</strong>,
+          y acceso a AWS mediante <strong>VPN site-to-site o cliente VPN</strong> hacia una VPC, separando tráfico de gestión de tráfico de usuarios internos.
+        </p>
+
+        <h3>Roles de equipos (ejemplo)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:8px; border:1px solid var(--border);">Rol</th>
+              <th style="text-align:left; padding:8px; border:1px solid var(--border);">Función</th>
+              <th style="text-align:left; padding:8px; border:1px solid var(--border);">Notas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:8px; border:1px solid var(--border);">Router / firewall</td>
+              <td style="padding:8px; border:1px solid var(--border);">NAT, políticas, VPN</td>
+              <td style="padding:8px; border:1px solid var(--border);">Perímetro; registro de accesos</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid var(--border);">Switch capa 2/3</td>
+              <td style="padding:8px; border:1px solid var(--border);">VLAN ingeniería / admin</td>
+              <td style="padding:8px; border:1px solid var(--border);">Aislamiento L2/L3</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid var(--border);">Servidor identidad / directorio</td>
+              <td style="padding:8px; border:1px solid var(--border);">Autenticación, políticas</td>
+              <td style="padding:8px; border:1px solid var(--border);">Cliente-servidor central</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid var(--border);">Estaciones ingeniería</td>
+              <td style="padding:8px; border:1px solid var(--border);">Configuración AWS, automatización</td>
+              <td style="padding:8px; border:1px solid var(--border);">Perfil restringido; 2FA</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid var(--border);">Estaciones administración</td>
+              <td style="padding:8px; border:1px solid var(--border);">ERP, facturación, correo</td>
+              <td style="padding:8px; border:1px solid var(--border);">Sin privilegios de nube</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Sistemas operativos (orientativo)</h3>
+        <ul>
+          <li><strong>Servidor:</strong> Linux servidor o <strong>Windows Server</strong> como SO de red típico en entornos empresariales; compatibilidad con directorio y servicios de autenticación (López Urrea, s.f.; Gómez, 2015).</li>
+          <li><strong>Clientes:</strong> Windows 10/11 Pro o Linux desktop con endurecimiento; estaciones de ingeniería con herramientas CLI AWS auditadas.</li>
+          <li><strong>Sistemas de archivos:</strong> en volúmenes Windows conviene <strong>NTFS</strong> por tamaños de volumen/archivo elevados, listas de control de acceso y metadatos de auditoría (marcas MACE: modificación, acceso, creación, etc., según el referente). En Linux, familias <strong>ext4</strong> u otras jerárquicas coherentes con la política de respaldos.</li>
+        </ul>
+
+        <h3>Aplicaciones de seguridad en el borde y en el puesto</h3>
+        <p>
+          El referente menciona el <strong>firewall de Windows Defender</strong> en Windows y <strong>iptables</strong> en Linux como mecanismos de filtrado por reglas;
+          para «Protejo sus Datos» se recomienda complementar con <strong>firewall perimetral</strong> y antivirus de nivel empresarial, no solo las herramientas integradas del SO cliente.
+        </p>
+
+        <h3>Grupos de usuarios y perfiles</h3>
+        <ul>
+          <li><strong>G_Ingenieria_Cloud:</strong> acceso a consola/API AWS mediante roles IAM; sin permisos locales de administración en puestos de admin.</li>
+          <li><strong>G_Administrativo:</strong> acceso a aplicaciones de gestión; bloqueo de puertos salientes no necesarios.</li>
+          <li><strong>G_Auditoria:</strong> solo lectura de logs y políticas; sin modificación de reglas de firewall.</li>
+        </ul>
+
+        <p class="cite">
+          Amazon Web Services. (2024). <em>AWS Well-Architected Framework</em> (documentación técnica). AWS.
+        </p>
+
+        <div class="callout">
+          Los directivos desean reducir costos con un solo switch compartido: la propuesta técnica puede <strong>mantener un único switch físico</strong>
+          pero exigir <strong>VLANs y ACLs</strong>, que incrementan poco el costo frente al beneficio en confidencialidad y cumplimiento.
+        </div>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="10">
+      <article class="section" id="conclusiones">
+        <h2>7. Conclusiones</h2>
+        <p><em>Puedes ajustar el tono o añadir cifras del caso; la línea argumental sigue al referente del Eje 2.</em></p>
+        <ul>
+          <li><strong>Punto clave 1:</strong> la propuesta de la directiva (LAN conmutada y salida a Internet compartida) reduce costo inicial pero acerca ingeniería y administración en el mismo plano de confianza; sin segmentación ni servidor de identidad, cuesta demostrar control de acceso proporcional al riesgo frente a datos personales y a la gestión en AWS.</li>
+          <li><strong>Punto clave 2:</strong> un entorno <strong>cliente-servidor</strong> con sistema operativo de red alinea la operación de «Protejo sus Datos» con las ventajas del referente: políticas centralizadas, servicios encapsulados, integridad y escalabilidad, frente a los límites de un esquema solo «entre iguales» cuando crece el número de equipos y la criticidad del dato.</li>
+          <li><strong>Punto clave 3:</strong> la seguridad no es solo topología: el diseño del SO (kernel frente a usuario), los sistemas de archivos endurecidos (p. ej. NTFS con permisos detallados), el control de cuentas y privilegios y el uso combinado de firewalls de host y perímetro son piezas coherentes con la tríada CID y con la responsabilidad profesional descrita en las conclusiones del referente.</li>
+        </ul>
+        <p><strong>Síntesis:</strong> el ahorro en cableado o en un solo CPE no debe ser el único criterio; la arquitectura recomendada mantiene el switch físico si hace falta, pero exige VLANs, políticas y servidor de servicios que materialicen, en la práctica, lo que el curso plantea sobre sistemas operativos de red y seguridad de la información.</p>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="11">
+      <article class="section" id="equipo">
+        <h2>Criterios de edición de la wiki</h2>
+        <p>
+          Conviene revisar el contexto y los puntos solicitados antes de cerrar el texto en «Conclusiones»
+          (borrador, revisión y versión final en la misma wiki).
+        </p>
+        <p>
+          Al citar, cruza cada afirmación técnica con el apartado equivalente del referente (SO de red, servicios, propiedades cliente-servidor,
+          seguridad en el diseño, sistema de archivos, usuarios y privilegios, aplicaciones de seguridad) y con la bibliografía del final en formato APA 7.
+        </p>
+      </article>
+      </div>
+
+      <div class="wiki-slide" data-slide-index="12">
+      <article class="section" id="bibliografia">
+        <h2>Bibliografía (APA 7 — referente del Eje 2 y fuentes complementarias)</h2>
+        <p style="font-size:0.9rem;">
+          Amazon Web Services. (2024). <em>AWS Well-Architected Framework</em>. AWS.<br />
+          Barrio, M. (2018). <em>Internet de las cosas</em>. Editorial Reus. <a href="https://elibro-net.proxy.bidig.areandina.edu.co/es/lc/areandina/titulos/121519" target="_blank" rel="noopener noreferrer">https://elibro-net.proxy.bidig.areandina.edu.co/es/lc/areandina/titulos/121519</a><br />
+          Cano, J., &amp; Almanza, A. (2020). Estudio de la evolución de la seguridad de la información en Colombia: 2000–2018. <em>Revista Ibérica de Sistemas e Tecnologias de Informação</em>, 470–483. <a href="http://proxy.bidig.areandina.edu.co:2048/login?url=https://www-proquest-com.proxy.bidig.areandina.edu.co/docview/2385758173?accountid=50441" target="_blank" rel="noopener noreferrer">ProQuest (acceso institucional)</a><br />
+          Cisco Networking Academy. (s.f.). <em>CyberOps Associate</em> [Figura de arquitectura cliente-servidor, 4.3.3]. Cisco. <a href="https://contenthub.netacad.com/cyberops/4.3.3" target="_blank" rel="noopener noreferrer">https://contenthub.netacad.com/cyberops/4.3.3</a><br />
+          Congreso de Colombia. (2012, 17 de octubre). Ley 1581 de 2012. <em>Diario Oficial de la República de Colombia</em>, 48.483.<br />
+          Fernández López, G. (2007). <em>Seguridad en sistemas operativos</em> (pp. 5–13). Universidade da Coruña, Facultade de Informática.<br />
+          Forouzan, B. A., &amp; Mosharraf, F. (2013). <em>Computer networks: A top-down approach</em>. McGraw-Hill.<br />
+          Gómez, J. (2015). <em>Administración de sistemas operativos en red</em>. Editorial UOC. <a href="https://elibro-net.proxy.bidig.areandina.edu.co/es/lc/areandina/titulos/56468" target="_blank" rel="noopener noreferrer">https://elibro-net.proxy.bidig.areandina.edu.co/es/lc/areandina/titulos/56468</a><br />
+          ISO/IEC. (2022). <em>ISO/IEC 27001:2022 — Information security management systems — Requirements</em>.<br />
+          Lara Navarra, P., &amp; Maniega Legarda, D. (2011). Conocimiento en la nube: Evolución de las intranets. <em>El profesional de la información</em>, 20(2), 175–182.<br />
+          Lecciones de Linux. (2020). Diseño de sistemas operativos: Lección 26. Facultad de Informática, Universidad de Las Palmas de Gran Canaria.<br />
+          López Urrea, L. (s.f.). <em>Sistemas operativos II — Eje 2: Analicemos la situación</em> [Material de curso]. Fundación Universitaria del Área Andina.<br />
+          Raya, J. (2015). <em>Sistemas operativos en red</em>. RA-MA Editorial. <a href="https://elibro-net.proxy.bidig.areandina.edu.co/es/lc/areandina/titulos/62454" target="_blank" rel="noopener noreferrer">https://elibro-net.proxy.bidig.areandina.edu.co/es/lc/areandina/titulos/62454</a><br />
+          Stallings, W., &amp; Brown, L. (2018). <em>Computer security: Principles and practice</em> (4th ed.). Pearson.<br />
+          Tanenbaum, A. S., &amp; Wetherall, D. J. (2011). <em>Computer networks</em> (5th ed.). Pearson.
+        </p>
+        <p class="cite">
+          Completar datos faltantes (año exacto del referente impreso, páginas, DOI) según la edición que entregue su programa; citar videocápsulas con autor o canal y fecha de publicación si las usa en el texto.
+        </p>
+      </article>
+
+      <footer class="wiki-footer">
+        <span id="footerPersonal"></span>
+        Wiki HTML — «Aquí entre iguales» · Eje 2. Actualizar según el referente del curso y el avance del contenido.
+      </footer>
+      </div>
+      </div>
+      </div>
+
+      <div class="slide-controls" id="slideControls" aria-label="Navegación entre secciones">
+        <button type="button" id="slidePrev" aria-label="Sección anterior">← Anterior</button>
+        <span class="slide-counter" id="slideCounter">1 / 13</span>
+        <button type="button" id="slideNext" aria-label="Sección siguiente">Siguiente →</button>
+        <div class="slide-dots" id="slideDots" aria-hidden="true"></div>
+      </div>
+    </main>
+  </div>
+
+  <div class="chat-widget" id="chatWidget">
+    <div class="chat-panel" id="chatPanel" hidden role="dialog" aria-modal="true" aria-labelledby="chatTitle">
+      <div class="chat-header">
+        <span id="chatTitle">WikiBot</span>
+        <button type="button" class="chat-close" id="chatClose" aria-label="Cerrar chat">×</button>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-typing" id="chatTyping" hidden>Enviando…</div>
+      <form class="chat-form" id="chatForm">
+        <label for="chatInput" class="visually-hidden">Mensaje</label>
+        <textarea id="chatInput" rows="1" placeholder="Escribe tu mensaje…" maxlength="8000" required></textarea>
+        <button type="button" id="chatSend">Enviar</button>
+      </form>
+    </div>
+    <button type="button" class="chat-launcher" id="chatLauncher" aria-expanded="false" aria-controls="chatPanel" title="Abrir asistente" aria-label="Abrir asistente">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 8V5M9 5h6" />
+        <circle cx="12" cy="5" r="1" fill="currentColor" stroke="none" />
+        <rect x="4" y="8" width="16" height="11" rx="3" />
+        <circle cx="9" cy="13.5" r="1.2" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="13.5" r="1.2" fill="currentColor" stroke="none" />
+        <path d="M9 19v2M15 19v2M6 22h12" />
+      </svg>
+    </button>
+  </div>
+
+  <button type="button" class="back-to-top" id="backToTop" aria-label="Volver arriba">↑</button>
+
+  <script>
+    (function () {
+      function initWikiYoutubeEmbeds() {
+        var protocol = location.protocol || "";
+        var pageOrigin = "";
+        if (protocol === "http:" || protocol === "https:") {
+          pageOrigin = location.origin || "";
+          if (pageOrigin === "null" || pageOrigin === "undefined") pageOrigin = "";
+        }
+        var list = document.querySelectorAll("iframe.wiki-youtube-embed[data-youtube-id]");
+        for (var i = 0; i < list.length; i++) {
+          var iframe = list[i];
+          var id = iframe.getAttribute("data-youtube-id");
+          if (!id) continue;
+          var base = "https://www.youtube.com/embed/" + encodeURIComponent(id);
+          var params = new URLSearchParams();
+          params.set("enablejsapi", "1");
+          params.set("modestbranding", "1");
+          params.set("playsinline", "1");
+          params.set("rel", "0");
+          if (pageOrigin) params.set("origin", pageOrigin);
+          iframe.src = base + "?" + params.toString();
+        }
+        if (protocol === "file:") {
+          var hint = document.getElementById("wikiVideoFileHint");
+          if (hint) hint.hidden = false;
+        }
+      }
+      initWikiYoutubeEmbeds();
+
+      var docEl = document.documentElement;
+      var progressEl = document.getElementById("readProgress");
+      var themeToggle = document.getElementById("themeToggle");
+      var menuToggle = document.getElementById("menuToggle");
+      var sidebarBackdrop = document.getElementById("sidebarBackdrop");
+      var navSearch = document.getElementById("navSearch");
+      var backToTop = document.getElementById("backToTop");
+      var expandAllBtn = document.getElementById("expandAll");
+      var collapseAllBtn = document.getElementById("collapseAll");
+      var mainEl = document.getElementById("main-content");
+      var viewModeToggle = document.getElementById("viewModeToggle");
+      var slidePrev = document.getElementById("slidePrev");
+      var slideNext = document.getElementById("slideNext");
+      var slideCounter = document.getElementById("slideCounter");
+      var slideEls = document.querySelectorAll(".wiki-slide");
+      var slidesStage = document.getElementById("slidesStage");
+      var slidesTrack = document.getElementById("slidesTrack");
+      var slideDotsEl = document.getElementById("slideDots");
+      if (slidesTrack) {
+        slidesTrack.style.setProperty("--slide-count", String(slideEls.length));
+      }
+      var currentSlideIndex = 0;
+      var skipSlideAnim = false;
+      var VIEW_MODE_KEY = "wiki-view-slides";
+
+      var THEME_KEY = "wiki-aqui-theme";
+
+      function applyTheme(theme) {
+        if (theme === "dark") {
+          docEl.setAttribute("data-theme", "dark");
+          themeToggle.textContent = "☀️ Claro";
+        } else {
+          docEl.removeAttribute("data-theme");
+          themeToggle.textContent = "🌙 Oscuro";
+        }
+        try {
+          localStorage.setItem(THEME_KEY, theme);
+        } catch (e) {}
+      }
+
+      try {
+        var saved = localStorage.getItem(THEME_KEY);
+        if (saved === "dark") applyTheme("dark");
+      } catch (e) {}
+
+      themeToggle.addEventListener("click", function () {
+        var dark = docEl.getAttribute("data-theme") === "dark";
+        applyTheme(dark ? "light" : "dark");
+      });
+
+      function setSidebarOpen(open) {
+        document.body.classList.toggle("sidebar-open", open);
+        menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
+        sidebarBackdrop.setAttribute("aria-hidden", open ? "false" : "true");
+      }
+
+      menuToggle.addEventListener("click", function () {
+        setSidebarOpen(!document.body.classList.contains("sidebar-open"));
+      });
+
+      sidebarBackdrop.addEventListener("click", function () {
+        setSidebarOpen(false);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          setSidebarOpen(false);
+          return;
+        }
+        if (!mainEl.classList.contains("mode-slides")) return;
+        var tag = (e.target && e.target.tagName) || "";
+        if (tag === "INPUT" || tag === "TEXTAREA" || e.target.isContentEditable) return;
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+          e.preventDefault();
+          goToSlide(currentSlideIndex + 1);
+        } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+          e.preventDefault();
+          goToSlide(currentSlideIndex - 1);
+        }
+      });
+
+      function updateProgress() {
+        var scrollTop = window.scrollY || docEl.scrollTop;
+        var height = docEl.scrollHeight - docEl.clientHeight;
+        var pct = height > 0 ? Math.round((scrollTop / height) * 100) : 0;
+        progressEl.style.width = pct + "%";
+        progressEl.setAttribute("aria-valuenow", String(pct));
+        backToTop.classList.toggle("visible", scrollTop > 320);
+      }
+
+      function onScroll() {
+        if (mainEl.classList.contains("mode-slides")) return;
+        updateProgress();
+        updateScrollSpy();
+      }
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      updateProgress();
+
+      backToTop.addEventListener("click", function () {
+        if (mainEl.classList.contains("mode-slides")) {
+          var active = document.querySelector(".wiki-slide.is-active");
+          if (active) active.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      });
+
+      var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav-link"));
+
+      navSearch.addEventListener("input", function () {
+        var q = navSearch.value.trim().toLowerCase();
+        navLinks.forEach(function (a) {
+          var titleEl = a.querySelector(".nav-link-title");
+          var t = (titleEl ? titleEl.textContent : a.textContent).toLowerCase();
+          a.classList.toggle("nav-hidden", q.length > 0 && t.indexOf(q) === -1);
+        });
+      });
+
+      var sectionIds = ["portada", "objetivo", "descripcion", "contexto", "tipo-red", "seguridad", "condiciones-cs", "desventajas-cs", "ventajas-cs", "arquitectura", "conclusiones", "equipo", "bibliografia"];
+      var sections = sectionIds.map(function (id) {
+        return document.getElementById(id);
+      }).filter(Boolean);
+
+      var hashId = location.hash.replace(/^#/, "");
+      if (hashId && sectionIds.indexOf(hashId) >= 0) currentSlideIndex = sectionIds.indexOf(hashId);
+
+      function renderSlideDots() {
+        if (!slideDotsEl) return;
+        slideDotsEl.innerHTML = "";
+        for (var d = 0; d < slideEls.length; d++) {
+          var dot = document.createElement("span");
+          if (d === currentSlideIndex) dot.className = "is-current";
+          slideDotsEl.appendChild(dot);
+        }
+      }
+
+      function goToSlide(i) {
+        if (i < 0 || i >= slideEls.length) return;
+        currentSlideIndex = i;
+
+        var instantNav = skipSlideAnim;
+
+        if (slidesTrack && mainEl.classList.contains("mode-slides")) {
+          slidesTrack.style.setProperty("--slide-count", String(slideEls.length));
+          if (instantNav) {
+            slidesTrack.style.transition = "none";
+          }
+          slidesTrack.style.setProperty("--slide-index", String(i));
+          if (instantNav) {
+            void slidesTrack.offsetWidth;
+            slidesTrack.style.transition = "";
+          }
+        }
+
+        slideEls.forEach(function (el, idx) {
+          if (idx === i) {
+            el.classList.add("is-active");
+            el.scrollTop = 0;
+            backToTop.classList.remove("visible");
+          } else {
+            el.classList.remove("is-active");
+          }
+        });
+        skipSlideAnim = false;
+
+        setActiveNav(sectionIds[i]);
+        var n = slideEls.length;
+        slideCounter.textContent = currentSlideIndex + 1 + " / " + n;
+        slidePrev.disabled = currentSlideIndex <= 0;
+        slideNext.disabled = currentSlideIndex >= n - 1;
+        renderSlideDots();
+        if (mainEl.classList.contains("mode-slides")) {
+          var pct = Math.round(((currentSlideIndex + 1) / n) * 100);
+          progressEl.style.width = pct + "%";
+          progressEl.setAttribute("aria-valuenow", String(pct));
+        }
+        try {
+          history.replaceState(null, "", "#" + sectionIds[i]);
+        } catch (err) {}
+      }
+
+      function setSlideMode(on) {
+        if (on) {
+          mainEl.classList.add("mode-slides");
+          document.body.classList.add("slides-view-active");
+          viewModeToggle.textContent = "📃 Vista continua";
+          viewModeToggle.classList.remove("btn-primary");
+          setAllExpanded(true);
+          var h = location.hash.replace(/^#/, "");
+          if (h && sectionIds.indexOf(h) >= 0) currentSlideIndex = sectionIds.indexOf(h);
+          skipSlideAnim = true;
+          goToSlide(currentSlideIndex);
+        } else {
+          mainEl.classList.remove("mode-slides");
+          document.body.classList.remove("slides-view-active");
+          viewModeToggle.textContent = "📑 Vista por secciones";
+          viewModeToggle.classList.add("btn-primary");
+          if (slidesTrack) {
+            slidesTrack.style.transition = "";
+            slidesTrack.style.removeProperty("--slide-index");
+          }
+          slideEls.forEach(function (el, idx) {
+            el.classList.toggle("is-active", idx === currentSlideIndex);
+          });
+          var target = document.getElementById(sectionIds[currentSlideIndex]);
+          if (target) {
+            setTimeout(function () {
+              target.scrollIntoView({ behavior: "auto", block: "start" });
+            }, 0);
+          }
+          updateProgress();
+          updateScrollSpy();
+        }
+        try {
+          localStorage.setItem(VIEW_MODE_KEY, on ? "1" : "0");
+        } catch (e2) {}
+      }
+
+      document.querySelectorAll('.nav-link[href^="#"]').forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          var id = link.getAttribute("data-section");
+          var idx = sectionIds.indexOf(id);
+          if (mainEl.classList.contains("mode-slides")) {
+            if (idx >= 0) goToSlide(idx);
+          } else {
+            var target = document.getElementById(id);
+            if (target) {
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+              target.classList.remove("content-highlight");
+              void target.offsetWidth;
+              target.classList.add("content-highlight");
+              setTimeout(function () {
+                target.classList.remove("content-highlight");
+              }, 900);
+            }
+          }
+          link.classList.remove("nav-pulse");
+          void link.offsetWidth;
+          link.classList.add("nav-pulse");
+          if (window.matchMedia("(max-width: 900px)").matches) setSidebarOpen(false);
+        });
+      });
+
+      function setActiveNav(id) {
+        navLinks.forEach(function (a) {
+          a.classList.toggle("nav-active", a.getAttribute("data-section") === id);
+        });
+      }
+
+      function updateScrollSpy() {
+        var y = window.scrollY + Math.min(140, window.innerHeight * 0.18);
+        var current = sectionIds[0];
+        for (var i = 0; i < sections.length; i++) {
+          var el = sections[i];
+          if (el && el.offsetTop <= y) current = el.id;
+        }
+        setActiveNav(current);
+      }
+
+      var toggles = [];
+
+      document.querySelectorAll("article.section").forEach(function (art) {
+        var h2 = art.querySelector("h2");
+        if (!h2) return;
+
+        var panel = document.createElement("div");
+        panel.className = "section-panel";
+
+        var n = h2.nextSibling;
+        while (n) {
+          var next = n.nextSibling;
+          panel.appendChild(n);
+          n = next;
+        }
+
+        var titleHtml = h2.innerHTML;
+        h2.classList.add("section-heading");
+        h2.textContent = "";
+
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "section-toggle";
+        btn.setAttribute("aria-expanded", "true");
+        btn.innerHTML = '<span class="section-chevron" aria-hidden="true">▼</span><span class="section-title">' + titleHtml + "</span>";
+
+        h2.appendChild(btn);
+        art.appendChild(panel);
+        art.classList.remove("is-collapsed");
+
+        btn.addEventListener("click", function () {
+          var exp = btn.getAttribute("aria-expanded") === "true";
+          btn.setAttribute("aria-expanded", exp ? "false" : "true");
+          panel.hidden = exp;
+          art.classList.toggle("is-collapsed", exp);
+        });
+
+        toggles.push({ btn: btn, panel: panel, art: art });
+      });
+
+      function setAllExpanded(expanded) {
+        toggles.forEach(function (t) {
+          t.btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+          t.panel.hidden = !expanded;
+          t.art.classList.toggle("is-collapsed", !expanded);
+        });
+      }
+
+      expandAllBtn.addEventListener("click", function () {
+        setAllExpanded(true);
+      });
+
+      collapseAllBtn.addEventListener("click", function () {
+        setAllExpanded(false);
+      });
+
+      viewModeToggle.addEventListener("click", function () {
+        setSlideMode(!mainEl.classList.contains("mode-slides"));
+      });
+
+      slidePrev.addEventListener("click", function () {
+        goToSlide(currentSlideIndex - 1);
+      });
+
+      slideNext.addEventListener("click", function () {
+        goToSlide(currentSlideIndex + 1);
+      });
+
+      slideEls.forEach(function (el) {
+        el.addEventListener(
+          "scroll",
+          function () {
+            if (!mainEl.classList.contains("mode-slides")) return;
+            if (!el.classList.contains("is-active")) return;
+            backToTop.classList.toggle("visible", el.scrollTop > 280);
+          },
+          { passive: true }
+        );
+      });
+
+      try {
+        var savedView = localStorage.getItem(VIEW_MODE_KEY);
+        if (savedView === "0") {
+          setSlideMode(false);
+        } else {
+          setSlideMode(true);
+        }
+      } catch (e3) {
+        setSlideMode(true);
+      }
+
+      renderSlideDots();
+      updateScrollSpy();
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var USER_NAME_KEY = "wiki-aqui-user-name";
+      var gate = document.getElementById("welcomeGate");
+      var gateForm = document.getElementById("welcomeGateForm");
+      var gateInput = document.getElementById("welcomeUserName");
+      var gateError = document.getElementById("welcomeGateError");
+      var heroWelcome = document.getElementById("heroUserWelcome");
+      var headerUserLine = document.getElementById("headerUserLine");
+      var footerPersonal = document.getElementById("footerPersonal");
+      var toolbarHint = document.getElementById("toolbarHint");
+      var changeNameBtn = document.getElementById("changeUserName");
+      var baseToolbarHint =
+        "Carrusel: índice o flechas ← → · «Vista continua» para scroll vertical";
+
+      function getStoredUserName() {
+        try {
+          return (localStorage.getItem(USER_NAME_KEY) || "").trim();
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function setStoredUserName(name) {
+        try {
+          if (name) localStorage.setItem(USER_NAME_KEY, name);
+          else localStorage.removeItem(USER_NAME_KEY);
+        } catch (e2) {}
+      }
+
+      function escapeAttr(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function applyPersonalization(displayName) {
+        var name = (displayName || "").trim();
+        window.__WIKI_DISPLAY_NAME__ = name || "";
+
+        if (!name) {
+          if (heroWelcome) {
+            heroWelcome.textContent = "";
+            heroWelcome.hidden = true;
+          }
+          if (headerUserLine) {
+            headerUserLine.textContent = "";
+            headerUserLine.hidden = true;
+          }
+          if (footerPersonal) footerPersonal.textContent = "";
+          if (toolbarHint) toolbarHint.textContent = baseToolbarHint;
+          return;
+        }
+
+        if (heroWelcome) {
+          heroWelcome.innerHTML =
+            "Hola, <strong>" +
+            escapeAttr(name) +
+            "</strong>. Esta wiki recoge el diseño de red para «Protejo sus Datos». Usa el índice o la vista por secciones y pregunta al asistente cuando lo necesites.";
+          heroWelcome.hidden = false;
+        }
+
+       
+
+        if (footerPersonal) {
+          footerPersonal.textContent =
+            name + ", gracias por revisar esta wiki. ";
+        }
+
+        if (toolbarHint) {
+          toolbarHint.textContent =
+            baseToolbarHint + " · " + name + ", el progreso de lectura te acompaña arriba.";
+        }
+      }
+
+      function notifyUserIdentified(name) {
+        try {
+          document.dispatchEvent(
+            new CustomEvent("wiki:user-identified", { detail: { name: name } })
+          );
+        } catch (e3) {}
+      }
+
+      function showGate(prefill) {
+        document.body.classList.add("wiki-gate-open");
+        gate.removeAttribute("hidden");
+        gateError.textContent = "";
+        if (gateInput) {
+          gateInput.value = prefill != null ? prefill : "";
+          setTimeout(function () {
+            gateInput.focus();
+            gateInput.select();
+          }, 0);
+        }
+      }
+
+      function hideGate() {
+        document.body.classList.remove("wiki-gate-open");
+        gate.setAttribute("hidden", "");
+        gateError.textContent = "";
+        var firstNav = document.querySelector("#wiki-header-nav .nav-link");
+        if (firstNav && typeof firstNav.focus === "function") {
+          try {
+            firstNav.focus({ preventScroll: true });
+          } catch (e4) {
+            firstNav.focus();
+          }
+        }
+      }
+
+      function openGateForChange() {
+        var current = getStoredUserName();
+        setStoredUserName("");
+        window.__WIKI_DISPLAY_NAME__ = "";
+        applyPersonalization("");
+        showGate(current);
+      }
+
+      if (gateForm && gateInput) {
+        gateForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var raw = (gateInput.value || "").trim();
+          if (raw.length < 1) {
+            gateError.textContent = "Escribe al menos una letra o un apodo.";
+            gateInput.focus();
+            return;
+          }
+          if (raw.length > 80) {
+            gateError.textContent = "Usa como máximo 80 caracteres.";
+            return;
+          }
+          setStoredUserName(raw);
+          applyPersonalization(raw);
+          hideGate();
+          notifyUserIdentified(raw);
+        });
+      }
+
+      if (changeNameBtn) {
+        changeNameBtn.addEventListener("click", function () {
+          openGateForChange();
+        });
+      }
+
+      /* En cada carga se muestra el modal; el nombre guardado solo sugiere el campo (Enter para confirmar). */
+      var saved = getStoredUserName();
+      showGate(saved);
+
+      window.__wikiGetUserDisplayName = function () {
+        if (document.body.classList.contains("wiki-gate-open")) {
+          return (window.__WIKI_DISPLAY_NAME__ || "").trim();
+        }
+        return (window.__WIKI_DISPLAY_NAME__ || getStoredUserName() || "").trim();
+      };
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var SESSION_KEY = "wiki-n8n-chat-session";
+      var META = document.querySelector('meta[name="n8n-webhook"]');
+      var qs = new URLSearchParams(location.search);
+
+      function getWebhookUrl() {
+        if (typeof window.__N8N_WEBHOOK__ === "string" && window.__N8N_WEBHOOK__.trim()) {
+          return window.__N8N_WEBHOOK__.trim();
+        }
+        var q = qs.get("webhook");
+        if (q) {
+          try {
+            return decodeURIComponent(q);
+          } catch (e) {
+            return q;
+          }
+        }
+        if (META && META.getAttribute("content")) {
+          return META.getAttribute("content").trim();
+        }
+        return "";
+      }
+
+      function getOrCreateSessionId() {
+        try {
+          var s = localStorage.getItem(SESSION_KEY);
+          if (s) return s;
+          s = "sess_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+          localStorage.setItem(SESSION_KEY, s);
+          return s;
+        } catch (e) {
+          return "sess_" + Date.now();
+        }
+      }
+
+      function escapeHtml(str) {
+        var d = document.createElement("div");
+        d.textContent = str;
+        return d.innerHTML;
+      }
+
+      function bubble(role, htmlOrText, isHtml) {
+        var el = document.createElement("div");
+        el.className = "chat-bubble " + role;
+        if (isHtml) el.innerHTML = htmlOrText;
+        else el.innerHTML = escapeHtml(htmlOrText);
+        return el;
+      }
+
+      function extractReplyFromJson(data) {
+        if (data == null) return "";
+        if (typeof data === "string") return data;
+        if (typeof data.reply === "string") return data.reply;
+        if (typeof data.message === "string" && !Array.isArray(data.message)) return data.message;
+        if (typeof data.text === "string") return data.text;
+        if (typeof data.output === "string") return data.output;
+        if (typeof data.response === "string") return data.response;
+        if (data.data != null) {
+          var r = extractReplyFromJson(data.data);
+          if (r) return r;
+        }
+        if (Array.isArray(data) && data.length) {
+          var first = data[0];
+          if (first && first.json) return extractReplyFromJson(first.json);
+          if (typeof first === "string") return first;
+        }
+        try {
+          return JSON.stringify(data);
+        } catch (e2) {
+          return String(data);
+        }
+      }
+
+      async function parseAssistantReply(res) {
+        var ct = (res.headers.get("content-type") || "").toLowerCase();
+        if (ct.indexOf("application/json") !== -1) {
+          var data = await res.json();
+          return extractReplyFromJson(data);
+        }
+        return await res.text();
+      }
+
+      var panel = document.getElementById("chatPanel");
+      var launcher = document.getElementById("chatLauncher");
+      var closeBtn = document.getElementById("chatClose");
+      var messagesEl = document.getElementById("chatMessages");
+      var form = document.getElementById("chatForm");
+      var input = document.getElementById("chatInput");
+      var sendBtn = document.getElementById("chatSend");
+      var typingEl = document.getElementById("chatTyping");
+
+      var history = [];
+
+      function setOpen(open) {
+        panel.hidden = !open;
+        launcher.setAttribute("aria-expanded", open ? "true" : "false");
+        if (open) {
+          input.focus();
+        }
+      }
+
+      launcher.addEventListener("click", function () {
+        setOpen(panel.hidden);
+      });
+
+      closeBtn.addEventListener("click", function () {
+        setOpen(false);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !panel.hidden) setOpen(false);
+      });
+
+      function getDisplayNameForChat() {
+        if (typeof window.__wikiGetUserDisplayName === "function") {
+          return window.__wikiGetUserDisplayName().trim();
+        }
+        return "";
+      }
+
+      /**
+       * El modelo suele recibir solo `message`; anteponemos contexto con el nombre.
+       * En el primer mensaje del chat se permite un saludo breve; en los siguientes
+       * se indica explícitamente no repetir "Hola, nombre" para evitar respuestas cansinas.
+       */
+      function messageWithNameForModel(userText, displayName, isFollowUp) {
+        var t = (userText || "").trim();
+        var n = (displayName || "").trim();
+        if (!n) return t;
+        if (isFollowUp) {
+          return (
+            "[Usuario: " +
+            n +
+            ". Instrucción: esta NO es la primera respuesta del chat. No saludes con «Hola» ni repitas su nombre al inicio; entra directo con la respuesta al tema. El nombre solo si encaja al final o en mitad de una frase, sin forzar.]\n\n" +
+            t
+          );
+        }
+        return (
+          "[Usuario: " +
+          n +
+          ". Puedes un saludo breve con su nombre solo en esta primera respuesta; después, en el mismo chat, no vuelvas a abrir con saludo+nombre.]\n\n" +
+          t
+        );
+      }
+
+      function welcomeIfEmpty() {
+        if (messagesEl.children.length) return;
+        if (document.body.classList.contains("wiki-gate-open")) return;
+        var url = getWebhookUrl();
+        var who = getDisplayNameForChat();
+        var greet = who
+          ? "Hola, " + who + ". "
+          : "";
+        if (!url) {
+          messagesEl.appendChild(
+            bubble(
+              "sys",
+              greet +
+                "Configura el webhook de n8n:\n\n1) Edita el meta en <head>: <meta name=\"n8n-webhook\" content=\"TU_URL\" />\n\n2) O en consola: window.__N8N_WEBHOOK__ = \"https://…\"\n\n3) O añade ?webhook=URL_codificada a la página.\n\nEn n8n activa CORS si el navegador bloquea la petición (cabeceras en el nodo Respond to Webhook o proxy).",
+              false
+            )
+          );
+        } else {
+          messagesEl.appendChild(
+            bubble(
+              "sys",
+              greet +
+                (who
+                  ? "Estoy conectado, pregúntame sobre la wiki, el caso «Protejo sus Datos»"
+                  : "Conectado al webhook. Escribe tu consulta sobre la wiki, el referente del Eje 2 o el tema del curso."),
+              false
+            )
+          );
+        }
+      }
+
+      welcomeIfEmpty();
+
+      document.addEventListener("wiki:user-identified", function () {
+        if (!messagesEl || messagesEl.children.length) return;
+        welcomeIfEmpty();
+      });
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+      });
+
+      async function sendChatMessage() {
+        var text = (input.value || "").trim();
+        if (!text) return;
+
+        var url = getWebhookUrl();
+        messagesEl.appendChild(bubble("user", text, false));
+        input.value = "";
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+
+        if (!url) {
+          messagesEl.appendChild(
+            bubble("err", "Falta la URL del webhook. Revisa el mensaje de configuración arriba.", false)
+          );
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+          return;
+        }
+
+        var hadPriorAssistant = history.some(function (h) {
+          return h.role === "assistant";
+        });
+
+        history.push({ role: "user", content: text });
+        if (history.length > 24) history = history.slice(-24);
+
+        sendBtn.disabled = true;
+        typingEl.hidden = false;
+
+        var displayName =
+          typeof window.__wikiGetUserDisplayName === "function"
+            ? window.__wikiGetUserDisplayName().trim()
+            : "";
+
+        var messageForModel = messageWithNameForModel(text, displayName, hadPriorAssistant);
+
+        var historyPayload = history.map(function (h, idx, arr) {
+          if (h.role !== "user" || !displayName) {
+            return { role: h.role, content: h.content };
+          }
+          var isLast = idx === arr.length - 1;
+          if (isLast) {
+            return { role: h.role, content: messageForModel };
+          }
+          return { role: h.role, content: h.content };
+        });
+
+        var payload = {
+          message: messageForModel,
+          sessionId: getOrCreateSessionId(),
+          source: "wiki-aqui-entre-iguales",
+          userName: displayName || undefined,
+          history: historyPayload,
+          page: location.href,
+        };
+
+        try {
+          var res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json, text/plain, */*" },
+            body: JSON.stringify(payload),
+            mode: "cors",
+          });
+
+          typingEl.hidden = true;
+
+          if (!res.ok) {
+            var errBody = await res.text().catch(function () {
+              return "";
+            });
+            messagesEl.appendChild(
+              bubble(
+                "err",
+                "Error " + res.status + " " + res.statusText + (errBody ? "\n" + errBody.slice(0, 500) : ""),
+                false
+              )
+            );
+          } else {
+            var reply = await parseAssistantReply(res);
+            reply = (reply || "").trim() || "(Sin texto en la respuesta. Revisa el nodo final en n8n.)";
+            history.push({ role: "assistant", content: reply });
+            messagesEl.appendChild(bubble("bot", reply, false));
+          }
+        } catch (err) {
+          typingEl.hidden = true;
+          messagesEl.appendChild(
+            bubble(
+              "err",
+              "No se pudo conectar: " +
+                (err && err.message ? err.message : String(err)) +
+                "\n\nSi es CORS, en n8n añade cabeceras Access-Control-Allow-Origin en la respuesta o usa un proxy.",
+              false
+            )
+          );
+        } finally {
+          sendBtn.disabled = false;
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+      }
+
+      if (input) {
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            void sendChatMessage();
+          }
+        });
+      }
+
+      sendBtn.addEventListener("click", function () {
+        void sendChatMessage();
+      });
+
+      input.addEventListener("input", function () {
+        input.style.height = "auto";
+        input.style.height = Math.min(input.scrollHeight, 120) + "px";
+      });
+    })();
+  </script>
+</body>
+</html>
